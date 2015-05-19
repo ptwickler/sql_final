@@ -1,0 +1,5 @@
+peter,peter.twickler@gmail.com,12
+dave,peter.twickler@gmail.com,pass
+Ari Chou,mchou@oreillyschool.com,test
+Tommy,peter.twickler@gmail.com,creeper
+fenn,b@b.com,pass
