@@ -1,65 +1,27 @@
 <?php
 date_default_timezone_set ( 'America/New_York' );
 
+ini_set('display_errors', 1);
+
+error_reporting(E_ALL);
+
+
 if (!isset($_SESSION)) {
     session_start();
 }
 
+require_once('FirePHP.class.php');
+
+if (!$firephp) {
+    ob_start();
+
+    $firephp = FirePHP::getInstance(true);
+
+}
 
 #----------------------#
 # Product List         #
 #----------------------#
-
-$products = array(
-    'quartzorb' => array(
-        'img' => 'quartzorb',
-        'name' => 'Quartz Orb',
-        'material' => 'quartz',
-        'price' => '30.00',
-        'weight' => '2lbs'
-    ),
-
-    'amethyst'=> array(
-        'img' => 'amethyst',
-        'name' => 'Amethyst',
-        'material' => 'amethyst',
-        'price' => '10.00',
-        'weight'=> '.5lbs'
-    ),
-
-    'catseye'=> array(
-        'img' => 'catseye',
-        'name' => 'Cats Eye',
-        'material' => 'cats eye',
-        'price' => '3.00',
-        'weight' => '.02lbs'
-    ),
-
-    'wizard' => array(
-        'img' => 'wizard',
-        'name' => 'Wizard',
-        'material' => 'pewter and quartz',
-        'price' => '40.00',
-        'weight' => '1lb'
-    ),
-
-    'dragon' => array(
-        'img' => 'dragon',
-        'name' => 'Dragon',
-        'material' => 'pewter and amethyst',
-        'price' => '50.00',
-        'weight' => '3lbs'
-    ),
-
-    'elf' => array(
-        'img'=> 'elf',
-        'name' => 'Elf',
-        'material' => 'pewter',
-        'price' => '20.00',
-        'weight' => '2lbs'
-    )
-);
-
 
 
 function db_connect(){
@@ -163,24 +125,32 @@ function build_out_cart($cart = NULL, $products){
  *
  *  $item is the product being processed and $products is the array of products in products.php.s
  */
-function display($item,$products){
-    $db = $db_connect();
-// Pushes the properties of the items into the html to display them. I use a hidden, read-only input called "item"
-    // in the form to get the "machine" name of the item for use as an index later. I couldn't figure out a better way
-    // to do this.
-    $product_display =  '<form  method="GET" action="functions.php?add_cart=1">
+function display(){
+    $db = db_connect();
+
+    $product_command = "SELECT name, img, weight, price FROM products";
+
+    $products_results = $db->query($product_command);
+
+    $product_display = array();
+
+    while ($product_data = $products_results->fetch_object()){
+
+        array_push($product_display,'<form  class="display_form" method="GET" action="functions.php?add_cart=1">
                          <div class = "product_display">
-                         <input class="disp_name" type="text" value = "'.$products[$item]["name"] .'" name="prod_name" readonly>
-                         <div class ="prod_img" ><img src = "./img/' . $products[$item]["img"].'.jpg"></div>
-                         <div class = "prod_weight">'.$products[$item]["weight"] . '</div>
-                         <div class = "prod_price">$'.$products[$item]["price"].'</div>
+                         <input class="disp_name" type="text" value = "'. $product_data->name .'" name="prod_name" readonly>
+                         <div class ="prod_img" ><img src = "./img/' . $product_data->img .'.jpg"></div>
+                         <div class = "prod_weight">'. $product_data->weight . '</div>
+                         <div class = "prod_price">$'. $product_data->price .'</div>
 
                          <input type="text" size="5" name="quantity">
                          <input class="add_to_cart"  type="submit" value="Add to Cart" >
-                         <input type="text" name ="item" value="'.$item.'" readonly hidden="true">
+                         <input type="text" name ="item" value="'.$product_data->name .'" readonly hidden="true">
                          </form>
 
-    </div>';
+    </div>');
+    }
+
 
     return $product_display;
 
@@ -189,10 +159,10 @@ function display($item,$products){
 // Grabs the items out of the cart and gets their relevant details from the array in products.php which it then pushes
 // into the "out cart" which will be used to create the shopping cart page.
 
-function add_to_cart($products,$item,$quantity){
+function add_to_cart($item,$quantity){
 
     $item = $item;
-    $products = $products;
+    //$products = $products;
     $_SESSION['out_cart'][$item]['name'] = $item;
     $_SESSION['out_cart'][$item]['quantity'] = $quantity;
     $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php";
@@ -310,6 +280,10 @@ function register_display($session) {
 // logged in. If the password isn't found, it suggests you try again. If the user isn't found, it displays
 // the registration form.
 function user_cred($query=array()) {
+
+    $db = db_connect();
+
+
     $user_info = $query;
 
     // Form validation and processing. If the new_user variable is set, test the form inputs and then process.
@@ -367,7 +341,49 @@ function user_cred($query=array()) {
     $user_list = file('accounts.txt');
 
     // Iterates through the file testing each line for the username and password combo.
-    for ($i = 0; $i < count($user_list); $i++){
+
+    $cred_command = "SELECT * FROM accounts WHERE username = '". $username . "';";
+
+
+
+    $cred_results = $db->query($cred_command);
+
+
+
+
+
+
+    $cred_data = $cred_results->fetch_object();
+
+
+
+    if ($cred_data->username == $username) {
+
+        if ($cred_data->password == $pw) {
+            $_SESSION['sign_in'] = 1;
+            $_SESSION['username'] = $username;
+            $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php";
+            ob_clean();
+            header("Location: " . $url) or die("didn't redirect from login");
+
+        }
+        elseif (($cred_data->username == $username) && $cred_data->password != $pw) {
+            if($pass_error == 1)
+                echo '<span class="form_error">The password you entered is not correct</span>';
+            $pass_error++;
+        }
+    }
+
+    elseif ($cred_data->username !=$username) {
+        /*if ($reg_link == 1) break;*/
+        echo '<div>Not registered? Click <a href="index.php?register_new=1">here</a> to register.</div>';
+        $reg_link++; // Increments counter to control the number of times the above verbiage and link are displayed.
+
+    }
+
+
+
+    /*for ($i = 0; $i < count($user_list); $i++){
         $line = explode(",",$user_list[$i]);
 
         for ($c = 0; $c < count($line); $c++) {
@@ -407,5 +423,7 @@ function user_cred($query=array()) {
 
             }
         }
-    }
+    }*/
 }
+
+$firephp->log($_SESSION, 'session');

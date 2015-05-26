@@ -42,7 +42,7 @@ print '</div><!--end div.cart_display-->';
 
 
 echo '<div class="banner">
-        <img class="banner" src="img/banner.jpg">
+        <img class="banner" <!--src="img/banner.jpg"-->>
       </div><!--end div.banner-->
 
 <div class="login">

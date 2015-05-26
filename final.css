@@ -9,10 +9,13 @@ body {
     height: 200px;
     position: relative;
     display: inline-block;
-    margin: 10px;
+    margin: 30px;
     float: left;
     clear: right;
 }
+
+
+
 
 .add_to_cart {
     position: relative;
@@ -25,8 +28,8 @@ body {
 }
 
 .prod_img {
-    width: 195px;
-    height: 195px;
+    width: 150px;
+    height: 150px;
 }
 
 .prod_img img {

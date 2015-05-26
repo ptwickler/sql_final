@@ -116,11 +116,11 @@ if (isset($_GET['checkout']) && $_GET['checkout'] ==1 ){
 // If none of the other "special case" query strings are set, the script displays the products. That is, the site
 // is in "shopping mode".
 else {
-    $disp = '';
+    $product_list = display();
+for ($i = 0; $i < count($product_list); $i++){
+    echo $product_list[$i];
+}
 
-    for ($i = 0; $i < count($current_products); $i++) {
-        echo display($current_products[$i], $products);
-    }
 
 
     echo "</div><!--end div.wrapper-->";
