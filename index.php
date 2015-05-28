@@ -1,5 +1,12 @@
 <?php
+require_once('FirePHP.class.php');
 
+if (!$firephp) {
+    ob_start();
+
+    $firephp = FirePHP::getInstance(true);
+
+}
 /*
  * The index page controls the user's path through the site. There are three different "modes" which will cause the
  * page to display differently. First, the "normal" mode which is a user is either signed in, or not, but has not
@@ -51,6 +58,13 @@ if (!isset($_SESSION['valid'])) {
 }
 
 include_once($_SERVER['DOCUMENT_ROOT'] ."/sql_final/template_top.inc");
+
+if ($_GET['admin'] == 2) {
+    echo '<div class="admin_wrapper">
+            <a href="http://localhost/sql_final/index.php?admin=3">Edit Accounts</a><br />
+            <a href="httP://localhost/sql_final/index.php?admin=4">Edit Products</a>
+          </div>';
+}
 
 
 // This array stores the machine names of the products. It needs to be appended if you want to add another
@@ -115,7 +129,7 @@ if (isset($_GET['checkout']) && $_GET['checkout'] ==1 ){
 
 // If none of the other "special case" query strings are set, the script displays the products. That is, the site
 // is in "shopping mode".
-else {
+elseif ($_GET['admin'] !=2  ) {
     $product_list = display();
 for ($i = 0; $i < count($product_list); $i++){
     echo $product_list[$i];
@@ -130,5 +144,5 @@ for ($i = 0; $i < count($product_list); $i++){
 }
 
 
-
+$firephp->log($_SESSION, 'session');
 

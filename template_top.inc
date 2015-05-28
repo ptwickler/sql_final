@@ -42,7 +42,7 @@ print '</div><!--end div.cart_display-->';
 
 
 echo '<div class="banner">
-        <img class="banner" <!--src="img/banner.jpg"-->>
+       <!--<img class="banner" src="img/banner.jpg">-->
       </div><!--end div.banner-->
 
 <div class="login">
@@ -67,6 +67,11 @@ if (!isset($_SESSION['sign_in'])) {
 echo '</div><!--end div.sign_out-->
 </div><!--end div.login-->';
 
+if ($_GET['admin']) {
+ echo '<div class="admin_button">
+  <a href="http://localhost/sql_final/index.php?admin=2">Go To Admin</a>
+</div>';
+}
 
 
 

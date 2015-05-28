@@ -19,9 +19,6 @@ if (!$firephp) {
 
 }
 
-#----------------------#
-# Product List         #
-#----------------------#
 
 
 function db_connect(){
@@ -33,6 +30,35 @@ function db_connect(){
     $db = new mysqli($host,$user,$pw,$database) or die("Cannot connect to MySQL.");
 
     return $db;
+
+}
+
+
+#----------------------#
+# Functions  admin     #
+#----------------------#
+
+function admin_area_display() {
+
+    echo '
+      <!DOCTYPE html>
+      <html lang="en>
+        <head>
+          <title>
+            Admin Page
+         </title>
+         <meta charset="utf-8">
+         <link rel="stylesheet" href="final.css"
+        </head>
+        <body>
+          <a href="locahost/sql_final/index.php?products=1">View/Edit Products</a>
+          <a href="locahost/sql_final/index.php?accounts=1">View/Edit Accounts</a>
+        </body>
+      </html>
+
+    ';
+
+
 
 }
 
@@ -194,24 +220,21 @@ if (isset($_GET['prod_name']) && $_GET['prod_name'] != 1) {
 
 // This function inserts a new "account" into the accounts.txt file. This is how I keep track of login credentials.
 // Basically, it implodes the values into a string and then writes it to the file accounts.txt.
-function new_user($user,$pass,$email) {
+function new_user($user,$email,$pass) {
+
+    $db = db_connect();
 
     $n_user = $user;
 
     $n_pass = $pass;
     $n_email = $email;
 
-    $users_list = fopen('/Library/WebServer/Documents/sql_final/accounts.txt','a+');
+    $register_command = "INSERT INTO accounts (username, user_email, password) VALUES ('". $n_user ."', '". $n_email . "', '". $n_pass ."');";
 
-    $user_values = array($n_user,$n_pass,$n_email);
+    $db->query($register_command);
 
-    $user_in = implode(",",$user_values);
+    $db->close();
 
-    $user_in_line = PHP_EOL . $user_in;
-
-    fwrite($users_list,$user_in_line);
-
-    fclose($users_list);
 }
 
 // Builds the new user registration form. Different states are for form validation. If any of the session variable
@@ -286,7 +309,7 @@ function user_cred($query=array()) {
 
     $user_info = $query;
 
-    // Form validation and processing. If the new_user variable is set, test the form inputs and then process.
+    // New account form validation and processing. If the new_user variable is set, test the form inputs and then process.
     if(isset($_GET['new_user']) && $_GET['new_user'] ==1){
         $name_test = $user_info['username'];
 
@@ -344,20 +367,11 @@ function user_cred($query=array()) {
 
     $cred_command = "SELECT * FROM accounts WHERE username = '". $username . "';";
 
-
-
     $cred_results = $db->query($cred_command);
-
-
-
-
-
 
     $cred_data = $cred_results->fetch_object();
 
-
-
-    if ($cred_data->username == $username) {
+    if (isset($cred_data->username)  && $cred_data->username == $username) {
 
         if ($cred_data->password == $pw) {
             $_SESSION['sign_in'] = 1;
@@ -374,10 +388,10 @@ function user_cred($query=array()) {
         }
     }
 
-    elseif ($cred_data->username !=$username) {
-        /*if ($reg_link == 1) break;*/
+    elseif ( !(isset($cred_data->username))) {
+
         echo '<div>Not registered? Click <a href="index.php?register_new=1">here</a> to register.</div>';
-        $reg_link++; // Increments counter to control the number of times the above verbiage and link are displayed.
+
 
     }
 
