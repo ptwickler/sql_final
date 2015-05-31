@@ -1,4 +1,8 @@
 <?php
+
+ini_set('display_errors', 1);
+
+error_reporting(E_ALL);
 require_once('FirePHP.class.php');
 
 if (!$firephp) {
@@ -59,14 +63,25 @@ if (!isset($_SESSION['valid'])) {
 
 include_once($_SERVER['DOCUMENT_ROOT'] ."/sql_final/template_top.inc");
 
-if ($_GET['admin'] == 2) {
+if (isset($_GET['admin']) && $_GET['admin'] == 2) {
     echo '<div class="admin_wrapper">
             <a href="http://localhost/sql_final/index.php?admin=3">Edit Accounts</a><br />
             <a href="httP://localhost/sql_final/index.php?admin=4">Edit Products</a>
           </div>';
 }
 
+if (isset($_GET['admin']) && $_GET['admin'] == 3) {
 
+    $accounts_display= admin_accounts();
+    echo '<div class="admin_wrapper">
+            <a href="http://localhost/sql_final/index.php?admin=3">Edit Accounts</a><br />
+            <a href="httP://localhost/sql_final/index.php?admin=4">Edit Products</a>
+          </div>
+          <div class="accounts_display">
+             '. $accounts_display .'
+          </div>';
+
+}
 // This array stores the machine names of the products. It needs to be appended if you want to add another
 // product to the store. The products.php file must also be appended to contain the new item's properties.
 $current_products = array('amethyst','quartzorb','wizard','catseye','dragon');
@@ -129,7 +144,7 @@ if (isset($_GET['checkout']) && $_GET['checkout'] ==1 ){
 
 // If none of the other "special case" query strings are set, the script displays the products. That is, the site
 // is in "shopping mode".
-elseif ($_GET['admin'] !=2  ) {
+elseif (!isset($_GET['admin']) || $_GET['admin'] ==1) {
     $product_list = display();
 for ($i = 0; $i < count($product_list); $i++){
     echo $product_list[$i];

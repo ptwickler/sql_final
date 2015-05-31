@@ -108,3 +108,8 @@ div.sign_in_form {
     float: right;
     clear: right;
 }
+
+div.accounts_display td {
+    padding: 5px 5px 5px 5px;
+    border: 1px solid darkgray;
+}

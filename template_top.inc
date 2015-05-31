@@ -67,10 +67,14 @@ if (!isset($_SESSION['sign_in'])) {
 echo '</div><!--end div.sign_out-->
 </div><!--end div.login-->';
 
-if ($_GET['admin']) {
+if (isset($_SESSION['admin'])) {
  echo '<div class="admin_button">
   <a href="http://localhost/sql_final/index.php?admin=2">Go To Admin</a>
 </div>';
+}
+
+elseif(isset($_GET['admin']) && $_GET['admin'] !=1) {
+    echo '<a href="http://localhost/sql_final/index.php">Leave Admin Site</a>';
 }
 
 

@@ -20,7 +20,7 @@ if (!$firephp) {
 }
 
 
-
+// Connects to the dB. Returns the connection object.
 function db_connect(){
     $host = '127.0.0.1';
     $user = 'twickler';
@@ -38,29 +38,73 @@ function db_connect(){
 # Functions  admin     #
 #----------------------#
 
-function admin_area_display() {
 
-    echo '
-      <!DOCTYPE html>
-      <html lang="en>
-        <head>
-          <title>
-            Admin Page
-         </title>
-         <meta charset="utf-8">
-         <link rel="stylesheet" href="final.css"
-        </head>
-        <body>
-          <a href="locahost/sql_final/index.php?products=1">View/Edit Products</a>
-          <a href="locahost/sql_final/index.php?accounts=1">View/Edit Accounts</a>
-        </body>
-      </html>
 
-    ';
+function admin_accounts() {
+    $db = db_connect();
 
+
+    $accounts_display_command = "SELECT * FROM accounts;";
+
+    $accounts_display_results = $db->query($accounts_display_command);
+
+    $accounts_display  = '<table><tbody>
+                            <tr><th>userId</th><th>username</th><th>email</th><th>password</th><th>admin</th></tr>';
+
+    while($accounts_display_data = $accounts_display_results->fetch_object()) {
+
+        $accounts_display .= "<tr><td>".$accounts_display_data->userId."</td><td>".$accounts_display_data->username ."</td><td>".$accounts_display_data->user_email."</td><td>".$accounts_display_data->password."<td>".$accounts_display_data->admin ."</td>";
+
+    }
+
+    $accounts_display .= '</tbody></table>
+     <div class="account_edit">
+       <form  class="account_edit_form" method="POST" action="functions.php?accts=1">
+         <input type="text" name="userId"><label for="userId">userId</label><br/>
+         <input type="text" name="username"><label for="username">username</label><br/>
+         <input type="text" name="email"><label for="email">email</label><br/>
+         <input type="text" name="password"><label for="password">password</label><br/>
+         <input type="text" name="admin"><label for="admin">admin</label><br/>
+         <input type="submit" value="Update Account">
+
+
+       </form>
+
+     </div>';
+
+  return $accounts_display;
 
 
 }
+
+// Parses the incoming form data from the account update form and builds the query.
+// The userId will be required, but this function will build the query with the
+function acct_update($post) {
+
+    $db = db_connect();
+
+
+    $account_info = $post;
+    $userId = $account_info['userId'];
+    $username = $account_info['username'];
+    $email = $account_info['email'];
+   // $password = $account_info['pass'];
+
+    $account_command = "UPDATE accounts SET";
+
+    if (isset($username) && $username != '') {
+        $account_command .= " username='" . $username . "'";
+    }
+
+    $account_command .= "WHERE userId=" . $userId . ";";
+
+
+
+    $db->query($account_command);
+    $db->close();
+
+}
+
 
 
 #----------------------#
@@ -231,6 +275,8 @@ function new_user($user,$email,$pass) {
 
     $register_command = "INSERT INTO accounts (username, user_email, password) VALUES ('". $n_user ."', '". $n_email . "', '". $n_pass ."');";
 
+
+
     $db->query($register_command);
 
     $db->close();
@@ -374,6 +420,9 @@ function user_cred($query=array()) {
     if (isset($cred_data->username)  && $cred_data->username == $username) {
 
         if ($cred_data->password == $pw) {
+            if (isset($cred_data->admin)) {
+                $_SESSION['admin'] = 1;
+            }
             $_SESSION['sign_in'] = 1;
             $_SESSION['username'] = $username;
             $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php";
@@ -397,47 +446,11 @@ function user_cred($query=array()) {
 
 
 
-    /*for ($i = 0; $i < count($user_list); $i++){
-        $line = explode(",",$user_list[$i]);
 
-        for ($c = 0; $c < count($line); $c++) {
-            $user_match =  preg_match('/^' . $username . '$/', $line[$c], $matches);
+}
 
-            if ($matches) {
-
-                for ($p = 0; $p < count($line); $p++) {
-
-                    for ($p = 0; $p < count($line); $p++) {
-
-                        $pw_match = preg_match('/^' . $pw . '$/', $line[$p], $match);
-
-                    }
-
-                    if ($pw_match) {
-                        $_SESSION['sign_in'] = 1;
-                        $_SESSION['username'] = $username;
-                        $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php";
-                        ob_clean();
-                        header("Location: " . $url) or die("didn't redirect from login");
-
-                    }
-
-                    elseif ($matches && $pw_match == false) {
-                        if($pass_error == 1)
-                            echo '<span class="form_error">The password you entered is not correct</span>';
-                        $pass_error++;
-                    }
-                }
-            }
-
-            elseif (!$matches) {
-                if ($reg_link == 1) break;
-                echo '<div>Not registered? Click <a href="index.php?register_new=1">here</a> to register.</div>';
-                $reg_link++; // Increments counter to control the number of times the above verbiage and link are displayed.
-
-            }
-        }
-    }*/
+if (isset($_GET['accts']) && $_GET['accts'] ==1){
+    acct_update($_POST);
 }
 
 $firephp->log($_SESSION, 'session');
