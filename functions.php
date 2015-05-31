@@ -39,7 +39,7 @@ function db_connect(){
 #----------------------#
 
 
-
+// Displays the accounts info of the admin area as well as the form that updates them.
 function admin_accounts() {
     $db = db_connect();
 
@@ -48,18 +48,22 @@ function admin_accounts() {
 
     $accounts_display_results = $db->query($accounts_display_command);
 
+    // Starts out building the table html which will be filled in, row by row, by the below while loop.
     $accounts_display  = '<table><tbody>
                             <tr><th>userId</th><th>username</th><th>email</th><th>password</th><th>admin</th></tr>';
 
+    //Iterates through the accounts table and concats in the data.
     while($accounts_display_data = $accounts_display_results->fetch_object()) {
 
         $accounts_display .= "<tr><td>".$accounts_display_data->userId."</td><td>".$accounts_display_data->username ."</td><td>".$accounts_display_data->user_email."</td><td>".$accounts_display_data->password."<td>".$accounts_display_data->admin ."</td>";
 
     }
 
+    // Finishes up the table html after the rows have been added.
     $accounts_display .= '</tbody></table>
-     <div class="account_edit">
-       <form  class="account_edit_form" method="POST" action="functions.php?accts=1">
+
+     <div class="account_edit">NOTE: userId must be filled.
+     <form  class="account_edit_form" method="POST" action="functions.php?accts=1">
          <input type="text" name="userId"><label for="userId">userId</label><br/>
          <input type="text" name="username"><label for="username">username</label><br/>
          <input type="text" name="email"><label for="email">email</label><br/>
@@ -96,7 +100,8 @@ function acct_update($post) {
     $string_bit = 0;
 
 
-
+ // This set of if/else statements check the incoming form data and concats either a comma with a space followed by the new data,
+ // if a preceding form input sends data, or just the new data if no other preceding field has data in it.
     if (isset($username) && $username != '') {
         $account_command .= " username='" . $username . "'";
 
@@ -131,10 +136,10 @@ function acct_update($post) {
             $account_command .=" admin=" . $admin;
         }
     }
+
+    // The remainder of the query is concatted here.
     $account_command .= " WHERE userId=" . $userId . ";";
 
-/*echo $account_command;
-    exit;*/
 
     $db->query($account_command);
     $db->close();
