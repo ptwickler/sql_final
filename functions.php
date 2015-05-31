@@ -88,20 +88,59 @@ function acct_update($post) {
     $userId = $account_info['userId'];
     $username = $account_info['username'];
     $email = $account_info['email'];
-   // $password = $account_info['pass'];
+    $password = $account_info['password'];
+    $admin = $account_info['admin'];
 
-    $account_command = "UPDATE accounts SET";
+    $account_command = "UPDATE accounts SET ";
+
+    $string_bit = 0;
+
+
 
     if (isset($username) && $username != '') {
         $account_command .= " username='" . $username . "'";
+
     }
 
-    $account_command .= "WHERE userId=" . $userId . ";";
+    if (isset($email) && $email != '') {
+        if(isset($username) && $username !=null){
+            $account_command .=", user_email='". $email . "'";
+        }
 
+        else {
+            $account_command .= "user_email='". $email ."'";
+        }
 
+    }
+
+    if (isset($password) && $password !=''){
+        if ((isset($username) && $username != null) || (isset($email) && $email !=null)){
+            $account_command .=", password='" . $password . "'";
+        }
+
+        else {
+            $account_command .=" password='" . $password . "'";
+        }
+    }
+
+    if (isset($admin) && $admin !='') {
+        if ((isset($username) && $username !=null) || (isset($email) && $email !=null) || (isset($password) && $password !=null)) {
+            $account_command .=", admin=" . $admin . "";
+        }
+        else {
+            $account_command .=" admin=" . $admin;
+        }
+    }
+    $account_command .= " WHERE userId=" . $userId . ";";
+
+/*echo $account_command;
+    exit;*/
 
     $db->query($account_command);
     $db->close();
+
+    $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php?admin=3";
+    header("Location: " . $url) or die("Didn't work");
 
 }
 
