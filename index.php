@@ -82,6 +82,19 @@ if (isset($_GET['admin']) && $_GET['admin'] == 3) {
           </div>';
 
 }
+
+if (isset($_GET['admin']) && $_GET['admin'] ==4){
+
+    $products_display = admin_products();
+    echo '<div class="admin_wrapper">
+            <a href="http://localhost/sql_final/index.php?admin=3">Edit Accounts</a><br />
+            <a href="httP://localhost/sql_final/index.php?admin=4">Edit Products</a>
+          </div>
+          <div class="accounts_display">
+             '. $products_display .'
+          </div>';
+
+}
 // This array stores the machine names of the products. It needs to be appended if you want to add another
 // product to the store. The products.php file must also be appended to contain the new item's properties.
 $current_products = array('amethyst','quartzorb','wizard','catseye','dragon');

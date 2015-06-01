@@ -29,9 +29,9 @@ if (isset($_SESSION['sign_in']) && $_SESSION['sign_in'] == 1) {
     if (isset($_SESSION['out_cart'])) {
         foreach ($_SESSION['out_cart'] as $key => $value) {
 
-            $product = $products[$key];
+          //  $product = $products[$key];
 
-            print '<input class="checkout_list" name="checkout_button" type="text" readonly value="' . $product['name'] . ': ' . $value["quantity"] . '"> <br>';
+            //print '<input class="checkout_list" name="checkout_button" type="text" readonly value="' . $product['name'] . ': ' . $value["quantity"] . '"> <br>';
         }
 
     }

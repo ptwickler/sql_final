@@ -81,6 +81,47 @@ function admin_accounts() {
 
 }
 
+function admin_products() {
+    $db = db_connect();
+
+
+    $products_display_command = "SELECT * FROM products;";
+
+    $products_display_results = $db->query($products_display_command);
+
+    // Starts out building the table html which will be filled in, row by row, by the below while loop.
+    $products_display  = '<table><tbody>
+                            <tr><th>productId</th><th>name</th><th>img</th><th>weight</th><th>price</th></tr>';
+
+    //Iterates through the accounts table and concats in the data.
+    while($products_display_data = $products_display_results->fetch_object()) {
+
+        $products_display .= "<tr><td>".$products_display_data->productId."</td><td>".$products_display_data->name ."</td><td>".$products_display_data->img."</td><td>".$products_display_data->weight."<td>".$products_display_data->price ."</td>";
+
+    }
+
+    // Finishes up the table html after the rows have been added.
+    $products_display .= '</tbody></table>
+
+     <div class="account_edit">NOTE: productId must be filled. ALSO: The img field contains the name of the image file. It is needed to build the html that displays the image. Changing this field, therefor, could break the html and display of products.
+     <form  class="account_edit_form" method="POST" action="functions.php?products=1">
+         <input type="text" name="productId"><label for="productId">productId</label><br/>
+         <input type="text" name="name"><label for="name">name</label><br/>
+         <input type="text" name="img"><label for="img">img</label><br/>
+         <input type="text" name="weight"><label for="weight">weight</label><br/>
+         <input type="text" name="price"><label for="price">price</label><br/>
+         <input type="submit" value="Update Product">
+
+
+       </form>
+
+     </div>';
+
+    return $products_display;
+
+
+}
+
 // Parses the incoming form data from the account update form and builds the query.
 // The userId will be required, but this function will build the query with the
 function acct_update($post) {
@@ -150,6 +191,73 @@ function acct_update($post) {
 }
 
 
+function product_update($post) {
+
+    $db = db_connect();
+
+
+    $product_info = $post;
+    $productId = $product_info['productId'];
+    $name = $product_info['name'];
+    $img = $product_info['img'];
+    $weight = $product_info['weight'];
+    $price = $product_info['price'];
+
+    $products_command = "UPDATE products SET ";
+
+    $string_bit = 0;
+
+
+    // This set of if/else statements check the incoming form data and concats either a comma with a space followed by the new data,
+    // if a preceding form input sends data, or just the new data if no other preceding field has data in it.
+    if (isset($name) && $name != '') {
+        $products_command .= " name='" . $name . "'";
+
+    }
+
+    if (isset($img) && $img != '') {
+        if(isset($name) && $name !=null){
+            $products_command .=", img='". $img . "'";
+        }
+
+        else {
+            $products_command .= "img='". $img ."'";
+        }
+
+    }
+
+    if (isset($weight) && $weight !=''){
+        if ((isset($name) && $name != null) || (isset($img) && $img !=null)){
+            $products_command .=", weight='" . $weight . "'";
+        }
+
+        else {
+            $products_command .=" weight='" . $weight . "'";
+        }
+    }
+
+    if (isset($price) && $price !='') {
+        if ((isset($name) && $name !=null) || (isset($img) && $img !=null) || (isset($weight) && $weight !=null)) {
+            $products_command .=", price=" . $price . "";
+        }
+        else {
+            $products_command .=" price=" . $price;
+        }
+    }
+
+    // The remainder of the query is concatted here.
+    $products_command .= " WHERE productId=" . $productId . ";";
+
+    /*echo $products_command;
+    exit;*/
+
+    $db->query($products_command);
+    $db->close();
+
+    $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php?admin=4";
+    header("Location: " . $url) or die("Didn't work");
+
+}
 
 #----------------------#
 # Functions  checkout  #
@@ -497,4 +605,7 @@ if (isset($_GET['accts']) && $_GET['accts'] ==1){
     acct_update($_POST);
 }
 
+if (isset($_GET['products']) && $_GET['products'] == 1){
+    product_update($_POST);
+}
 $firephp->log($_SESSION, 'session');
