@@ -119,11 +119,12 @@ if (isset($_GET['register_new']) && $_GET['register_new'] == 1) {
 // This puts the site into "checkout mode".
 if (isset($_GET['checkout']) && $_GET['checkout'] ==1 ){
     $items = $_SESSION['out_cart'];
-    $out_table = build_out_cart($items,$products);
+
+    $out_table = build_out_cart($items);
 
     echo '
 <div class="cart_display">
-          <h2>Your Cart:</h2>
+          <h2>Your Checkout Cart:</h2>
           <hr>
           <br>
           <br>

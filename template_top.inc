@@ -27,12 +27,10 @@ if (isset($_SESSION['sign_in']) && $_SESSION['sign_in'] == 1) {
     print '<form name="checkout_button" action="index.php?checkout=1" method="POST">';
 
     if (isset($_SESSION['out_cart'])) {
-        foreach ($_SESSION['out_cart'] as $key => $value) {
 
-          //  $product = $products[$key];
+        $display_cart = build_display_cart($_SESSION['out_cart']);
 
-            //print '<input class="checkout_list" name="checkout_button" type="text" readonly value="' . $product['name'] . ': ' . $value["quantity"] . '"> <br>';
-        }
+        echo $display_cart;
 
     }
 

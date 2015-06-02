@@ -317,26 +317,7 @@ function confirm_email($user,$products) {
 }
 
 
-/*
- * Builds the string to display the products and info in the user's cart.
- */
-function build_out_cart($cart = NULL, $products){
 
-    $out_cart = '';
-    $total = 0;
-
-    if ($cart) {
-        foreach ($cart as $key => $value) {
-            $product = $products[$key];
-
-            $out_cart .= '<tr><td class="checkout_name">' . $product['name'] . '</td><td class="checkout_quantity">' . $cart[$key]['quantity'] . '</td><td class="checkout_price">$' . $product['price'] * intval($cart[$key]['quantity']) . '.00</td></tr>';
-            $total += $product['price'] * intval($cart[$key]['quantity']);
-        }
-
-        $out_cart .= '</tbody></table><div class="total_price"> Your Total: $' . $total . '.00</div>';
-        return $out_cart;
-    }
-}
 
 #----------------------#
 # Functions  index     #
@@ -350,7 +331,7 @@ function build_out_cart($cart = NULL, $products){
 function display(){
     $db = db_connect();
 
-    $product_command = "SELECT name, img, weight, price FROM products";
+    $product_command = "SELECT * FROM products";
 
     $products_results = $db->query($product_command);
 
@@ -367,7 +348,7 @@ function display(){
 
                          <input type="text" size="5" name="quantity">
                          <input class="add_to_cart"  type="submit" value="Add to Cart" >
-                         <input type="text" name ="item" value="'.$product_data->name .'" readonly hidden="true">
+                         <input type="text" name ="item" value="'.$product_data->productId .'" readonly hidden="true">
                          </form>
 
     </div>');
@@ -378,15 +359,82 @@ function display(){
 
 };
 
+// Builds the html to populate the "Your cart" area that sits at the top of the page when a user has logged in.
+function build_display_cart($cart=NULL){
+    $db = db_connect();
+
+    $items = $cart;
+
+    $display_cart = '';
+
+foreach ($cart as $key=>$value) {
+
+    $display_cart_command = "SELECT * FROM products WHERE productId=" . $items[$key]['productId'] . ";";
+
+    $display_cart_results = $db->query($display_cart_command);
+
+    $display_cart_data = $display_cart_results->fetch_object();
+
+    $display_cart .= '<input class="checkout_list" name="checkout_button" type="text" readonly value="' . $display_cart_data->name . ': ' . $value["quantity"] . '"> <br>';
+
+
+}
+
+    return $display_cart;
+
+
+}
+/*
+ * Builds the string to display the products and info in the user's checkout cart.
+ */
+
+function build_out_cart($cart = NULL ){
+    $db = db_connect();
+
+    $items = $cart;
+
+    $out_cart = '';
+
+    $total = 0;
+
+    foreach ($cart as $key=>$value) {
+
+        $out_cart_command = "SELECT * FROM products WHERE productId=" . $items[$key]['productId'] . ";";
+
+        $out_cart_results = $db->query($out_cart_command);
+
+        $out_cart_data = $out_cart_results->fetch_object();
+
+
+     
+        $out_cart .= $out_cart .= '<tr><td class="checkout_name">' . $out_cart_data->name . '</td><td class="checkout_quantity">' . $cart[$key]['quantity'] . '</td><td class="checkout_price">$' .$out_cart_data->price * intval($cart[$key]['quantity']) . '</td></tr>';
+        $out_cart .= '</tbody></table><div class="total_price"> Your Total: $' . $total . '.00</div>';
+
+    }
+
+    return $out_cart;
+    /*$out_cart = '';
+    $total = 0;
+    if ($cart) {
+        foreach ($cart as $key => $value) {
+            $product = $products[$key];
+            $out_cart .= '<tr><td class="checkout_name">' . $product['name'] . '</td><td class="checkout_quantity">' . $cart[$key]['quantity'] . '</td><td class="checkout_price">$' . $product['price'] * intval($cart[$key]['quantity']) . '.00</td></tr>';
+            $total += $product['price'] * intval($cart[$key]['quantity']);
+        }
+        $out_cart .= '</tbody></table><div class="total_price"> Your Total: $' . $total . '.00</div>';
+        return $out_cart;
+    }*/
+}
+
 // Grabs the items out of the cart and gets their relevant details from the array in products.php which it then pushes
 // into the "out cart" which will be used to create the shopping cart page.
 
-function add_to_cart($item,$quantity){
+function add_to_cart($productId,$quantity){
 
-    $item = $item;
+    $productId = $productId;
     //$products = $products;
-    $_SESSION['out_cart'][$item]['name'] = $item;
-    $_SESSION['out_cart'][$item]['quantity'] = $quantity;
+    $_SESSION['out_cart'][$productId]['productId'] = $productId;
+    $_SESSION['out_cart'][$productId]['quantity'] = $quantity;
     $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php";
     header("Location: " . $url) or die("Didn't work");
 }
@@ -395,12 +443,19 @@ function add_to_cart($item,$quantity){
 // figure it out in time. So, you get the below kludge.
 if (isset($_GET['prod_name']) && $_GET['prod_name'] != 1) {
 
-    $item = $_GET['item'];
+    /*print_r($_GET);
+    exit;*/
+    $name = $_GET['prod_name'];
+    $productId = $_GET['item'];
     $quantity = $_GET['quantity'];
     $cart = $_SESSION['cart'];
 
     if ($_SESSION['sign_in'] == 1) {
-        add_to_cart($products, $item, $quantity);
+
+        /*print_r($_GET);
+        exit;*/
+
+        add_to_cart($productId, $quantity   );
         $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php";
         header("Location: " . $url) or die("Didn't work");
     } else {
@@ -559,7 +614,7 @@ function user_cred($query=array()) {
     $reg_link = 0; // Counter to limit the display of the "register here" verbiage.
     $pass_error = 0;
 
-    $user_list = file('accounts.txt');
+
 
     // Iterates through the file testing each line for the username and password combo.
 
