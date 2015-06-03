@@ -406,11 +406,14 @@ function build_out_cart($cart = NULL ){
         $out_cart_data = $out_cart_results->fetch_object();
 
 
-     
-        $out_cart .= $out_cart .= '<tr><td class="checkout_name">' . $out_cart_data->name . '</td><td class="checkout_quantity">' . $cart[$key]['quantity'] . '</td><td class="checkout_price">$' .$out_cart_data->price * intval($cart[$key]['quantity']) . '</td></tr>';
-        $out_cart .= '</tbody></table><div class="total_price"> Your Total: $' . $total . '.00</div>';
+
+        $out_cart .= '<tr><td class="checkout_name">' . $out_cart_data->name . '</td><td class="checkout_quantity">' . $cart[$key]['quantity'] . '</td><td class="checkout_price">$' .$out_cart_data->price * intval($cart[$key]['quantity']) . '</td></tr>';
+        $total .= $out_cart_data->price;
+
 
     }
+
+    $out_cart .= '</tbody></table><div class="total_price"> Your Total: $' . $total . '.00</div>';
 
     return $out_cart;
     /*$out_cart = '';
