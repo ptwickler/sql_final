@@ -263,16 +263,45 @@ function product_update($post) {
 # Functions  checkout  #
 #----------------------#
 
+// Once the user has completed checkout successfully, this function inserts the informtion into the purchases table.
 function purchase(){
     $db = db_connect();
 
+    $order_get_orderId_command = "SELECT orderId FROM purchases ORDER BY orderId DESC LIMIT 1;"; // Get the last orderId so that we can increment it to become the new order's id number
 
-    $purchase_command = "INSERT";
+    $order_get_orderId_results = $db->query($order_get_orderId_command);
 
+    $new_orderId = $order_get_orderId_results->fetch_object()->orderId +1; // Adds 1 to the last orderId to become the new order's id numeber.
+
+    $order_get_uid_command = "SELECT userId FROM accounts where username='" . $_SESSION['username'] . "';";
+
+    $order_get_uid_results = $db->query($order_get_uid_command);
+
+    $order_uid = $order_get_uid_results->fetch_object()->userId;
+
+
+    // This foreach loop logs the order in the purchases table.
+    foreach ($_SESSION['out_cart'] as $key=> $value) {
+
+        $order_get_price_command = "SELECT price FROM products WHERE productId=". $_SESSION['out_cart'][$key]['productId'] . ";";
+
+        $order_get_price_results = $db->query($order_get_price_command);
+
+
+        $order_price = $order_get_price_results->fetch_object()->price;
+
+        $order_log_command = "INSERT INTO purchases (userId,orderId,productId,product_price,quantity,purchase_date) VALUES (" . $order_uid . ",". $new_orderId . ",". $_SESSION['out_cart'][$key]['productId'] .",".$order_price . "," . $_SESSION['out_cart'][$key]['quantity']. ", now());";
+
+
+        $db->query($order_log_command);
+
+        $db->close();
+
+    }
 }
 
 
-// finish the out_cart indexing to pull in the items.
+// Builds the confirmation email.
 function confirm_email($user)
 {
 
@@ -328,40 +357,7 @@ function confirm_email($user)
         $thanks = "Thank you for your purchase, " . $user . ". An email with your purchase receipt has been sent to your email address.<br><br>
                     Your friends at Crystals, Charms, and Coffees";
 
-
-        $order_get_orderId_command = "SELECT orderId FROM purchases ORDER BY orderId DESC LIMIT 1;";
-
-        $order_get_orderId_results = $db->query($order_get_orderId_command);
-
-        $new_orderId = $order_get_orderId_results->fetch_object()->orderId +1;
-
-
-        $order_get_uid_command = "SELECT userId FROM accounts where username='" . $_SESSION['username'] . "';";
-
-        $order_get_uid_results = $db->query($order_get_uid_command);
-
-        $order_uid = $order_get_uid_results->fetch_object()->userId;
-
-
-        // This foreach loop logs the order in the purchases table.
-
-
-        foreach ($_SESSION['out_cart'] as $key=> $value) {
-
-            $order_get_price_command = "SELECT price FROM products WHERE productId=". $_SESSION['out_cart'][$key]['productId'] . ";";
-
-            $order_get_price_results = $db->query($order_get_price_command);
-
-
-            $order_price = $order_get_price_results->fetch_object()->price;
-
-            $order_log_command = "INSERT INTO purchases (userId,orderId,productId,product_price,quantity,purchase_date) VALUES (" . $order_uid . ",". $new_orderId . ",". $_SESSION['out_cart'][$key]['productId'] .",".$order_price . "," . $_SESSION['out_cart'][$key]['quantity']. ", now());";
-
-
-            $db->query($order_log_command);
-
-
-        }
+        purchase();
         unset($_SESSION['out_cart']);
 
     } elseif ($mail != true) {
