@@ -262,57 +262,116 @@ function product_update($post) {
 #----------------------#
 # Functions  checkout  #
 #----------------------#
+
+function purchase(){
+    $db = db_connect();
+
+
+    $purchase_command = "INSERT";
+
+}
+
+
 // finish the out_cart indexing to pull in the items.
-function confirm_email($user,$products) {
+function confirm_email($user)
+{
 
-    $message = "<html><head></head><body><br><br><br><br><br><br><br>" . $user.", thank you for buying this stuff.<br>Your Purchases:";
+    $db = db_connect();
 
-    $user_list = file('accounts.txt');
-    for($i=0; $i < count($user_list);$i++) {
-        $line = explode(",",$user_list[$i]);
-        for ($c = 0; $c < count($line); $c++) {
-            $user_match = preg_match('/^' . $user . '$/', $line[$c], $matches);
+    $confirm_command = "SELECT username,user_email FROM accounts WHERE username ='" . $user . "';";
 
-            if ($matches) {
-                $user_email = $line[1]; //This is the index of the user info that stores the email address.
-                $to = $user_email;
+    $confirm_result = $db->query($confirm_command);
 
-                $email_subject = $user . "-- Your Purchase from Crystals, Charms, and Coffee " . date("F d, Y h:i a");
+    $confirm_data = $confirm_result->fetch_object();
 
-                //$message = '';
-                $total = 0;
+    $name = $confirm_data->username;
 
-                foreach($_SESSION['out_cart'] as $key=>$value) {
-                    $product = $products[$key];
+    $email = $confirm_data->user_email;
 
-                    $message .= '<table><tbody><tr><td class="checkout_name">' . $product['name'] . '</td><td class="checkout_quantity">' . $_SESSION['out_cart'][$key]['quantity'] . '</td><td class="checkout_price">$' . $product['price'] * intval($_SESSION['out_cart'][$key]['quantity']) .'.00</td></tr>';
-                    $total += $product['price'] * intval($_SESSION['out_cart'][$key]['quantity']);
-                }
 
-                $message .= '</tbody></table><div class="total_price"> Your Total: $' .$total . '.00</div></body></html>';
 
-                $headers  = "From: peter.twickler@gmail.com" . "\r\n";
-                $headers .= 'MIME-Version: 1.0' . "\n";
-                $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+    $message = "<html><head></head><body><br><br><br><br><br><br><br>" . $name . ", thank you for buying this stuff.<br>Your Purchases:";
 
-                $mail = mail($to, $email_subject, $message,$headers);
+    $to = $email;
 
-                // If the order went through and the email worked, display the confirmation message and unset the cart.
-                if ($mail == true) {
-                    $thanks =  "Thank you for your purchase, ". $user . ". An email with your purchase receipt has been sent to your email address.<br><br>
-                    Your friends at Crystals, Charms, and Coffees";
-                    unset($_SESSION['out_cart']);
+    $email_subject = $user . "-- Your Purchase from Crystals, Charms, and Coffee " . date("F d, Y h:i a");
 
-                }
+    $total = 0;
 
-                elseif($mail != true) {
-                    $thanks = "I'm sorry, something went wrong and we could not send your receipt to the email address on file.";
-                }
 
-            }
-        }
+    foreach ($_SESSION['out_cart'] as $key => $value) {
+        $confirm_email_command = "SELECT * FROM products WHERE productId=" . $_SESSION['out_cart'][$key]['productId'] . ";";
 
+        $confirm_email_results = $db->query($confirm_email_command);
+
+        $confirm_email_data = $confirm_email_results->fetch_object();
+
+
+        $message .= '<table><tbody><tr><td class="checkout_name">'. $confirm_email_data->name . '</td><td class="checkout_quantity">' . $_SESSION['out_cart'][$key]['quantity'] . '</td><td class="checkout_price">$' . $confirm_email_data->price * intval($_SESSION['out_cart'][$key]['quantity']) . '.00</td></tr>';
+        $total +=  $confirm_email_data->price * intval($_SESSION['out_cart'][$key]['quantity']);
     }
+
+    $message .= '</tbody></table><div class="total_price"> Your Total: $' . number_format($total,2) . '</div></body></html>';
+
+
+    $headers = "From: peter.twickler@gmail.com" . "\r\n";
+    $headers .= 'MIME-Version: 1.0' . "\n";
+    $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+
+
+
+
+    $mail = mail($to, $email_subject, $message, $headers);
+
+    // If the order went through and the email worked, display the confirmation message and unset the cart.
+    if ($mail == true) {
+        $thanks = "Thank you for your purchase, " . $user . ". An email with your purchase receipt has been sent to your email address.<br><br>
+                    Your friends at Crystals, Charms, and Coffees";
+
+
+        $order_get_orderId_command = "SELECT orderId FROM purchases ORDER BY orderId DESC LIMIT 1;";
+
+        $order_get_orderId_results = $db->query($order_get_orderId_command);
+
+        $new_orderId = $order_get_orderId_results->fetch_object()->orderId +1;
+
+
+        $order_get_uid_command = "SELECT userId FROM accounts where username='" . $_SESSION['username'] . "';";
+
+        $order_get_uid_results = $db->query($order_get_uid_command);
+
+        $order_uid = $order_get_uid_results->fetch_object()->userId;
+
+
+        // This foreach loop logs the order in the purchases table.
+
+
+        foreach ($_SESSION['out_cart'] as $key=> $value) {
+
+            $order_get_price_command = "SELECT price FROM products WHERE productId=". $_SESSION['out_cart'][$key]['productId'] . ";";
+
+            $order_get_price_results = $db->query($order_get_price_command);
+
+
+            $order_price = $order_get_price_results->fetch_object()->price;
+
+            $order_log_command = "INSERT INTO purchases (userId,orderId,productId,product_price,quantity,purchase_date) VALUES (" . $order_uid . ",". $new_orderId . ",". $_SESSION['out_cart'][$key]['productId'] .",".$order_price . "," . $_SESSION['out_cart'][$key]['quantity']. ", now());";
+
+
+            $db->query($order_log_command);
+
+
+        }
+        unset($_SESSION['out_cart']);
+
+    } elseif ($mail != true) {
+        $thanks = "I'm sorry, something went wrong and we could not send your receipt to the email address on file.";
+    }
+
+
+
+
+$db->close();
     return $thanks;
 }
 
@@ -399,6 +458,7 @@ function build_out_cart($cart = NULL ){
 
     foreach ($cart as $key=>$value) {
 
+
         $out_cart_command = "SELECT * FROM products WHERE productId=" . $items[$key]['productId'] . ";";
 
         $out_cart_results = $db->query($out_cart_command);
@@ -407,26 +467,18 @@ function build_out_cart($cart = NULL ){
 
 
 
-        $out_cart .= '<tr><td class="checkout_name">' . $out_cart_data->name . '</td><td class="checkout_quantity">' . $cart[$key]['quantity'] . '</td><td class="checkout_price">$' .$out_cart_data->price * intval($cart[$key]['quantity']) . '</td></tr>';
-        $total .= $out_cart_data->price;
+        $out_cart .= '<tr><td class="checkout_name">' . $out_cart_data->name . '</td><td class="checkout_quantity">' . $cart[$key]['quantity'] . '</td><td class="checkout_price">$' . number_format(($out_cart_data->price * intval($cart[$key]['quantity'])),2) . '</td></tr>';
+
+
+        $total +=  $out_cart_data->price * intval($cart[$key]['quantity']);
 
 
     }
 
-    $out_cart .= '</tbody></table><div class="total_price"> Your Total: $' . $total . '.00</div>';
+    $out_cart .= '</tbody></table><div class="total_price"> Your Total: $' . number_format($total,2) . '</div>';
 
     return $out_cart;
-    /*$out_cart = '';
-    $total = 0;
-    if ($cart) {
-        foreach ($cart as $key => $value) {
-            $product = $products[$key];
-            $out_cart .= '<tr><td class="checkout_name">' . $product['name'] . '</td><td class="checkout_quantity">' . $cart[$key]['quantity'] . '</td><td class="checkout_price">$' . $product['price'] * intval($cart[$key]['quantity']) . '.00</td></tr>';
-            $total += $product['price'] * intval($cart[$key]['quantity']);
-        }
-        $out_cart .= '</tbody></table><div class="total_price"> Your Total: $' . $total . '.00</div>';
-        return $out_cart;
-    }*/
+
 }
 
 // Grabs the items out of the cart and gets their relevant details from the array in products.php which it then pushes

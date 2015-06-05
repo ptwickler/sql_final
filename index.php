@@ -141,7 +141,7 @@ if (isset($_GET['checkout']) && $_GET['checkout'] ==1 ){
 
     // If the post variable "mail" is set and equals 1, send the confirmation email and display the confirmation message.
     if (isset($_POST['mail']) && $_POST['mail'] == 1) {
-        $thanks = confirm_email($_SESSION['username'],$products);
+        $thanks = confirm_email($_SESSION['username']);
 
 
         if ($thanks){
@@ -163,8 +163,6 @@ elseif (!isset($_GET['admin']) || $_GET['admin'] ==1) {
 for ($i = 0; $i < count($product_list); $i++){
     echo $product_list[$i];
 }
-
-
 
     echo "</div><!--end div.wrapper-->";
 
