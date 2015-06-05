@@ -138,8 +138,6 @@ function acct_update($post) {
 
     $account_command = "UPDATE accounts SET ";
 
-    $string_bit = 0;
-
 
  // This set of if/else statements check the incoming form data and concats either a comma with a space followed by the new data,
  // if a preceding form input sends data, or just the new data if no other preceding field has data in it.
@@ -205,9 +203,6 @@ function product_update($post) {
 
     $products_command = "UPDATE products SET ";
 
-    $string_bit = 0;
-
-
     // This set of if/else statements check the incoming form data and concats either a comma with a space followed by the new data,
     // if a preceding form input sends data, or just the new data if no other preceding field has data in it.
     if (isset($name) && $name != '') {
@@ -245,11 +240,8 @@ function product_update($post) {
         }
     }
 
-    // The remainder of the query is concatted here.
+    // The remainder of the query is concatenated here.
     $products_command .= " WHERE productId=" . $productId . ";";
-
-    /*echo $products_command;
-    exit;*/
 
     $db->query($products_command);
     $db->close();
@@ -257,6 +249,25 @@ function product_update($post) {
     $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php?admin=4";
     header("Location: " . $url) or die("Didn't work");
 
+}
+
+function admin_purchases_display() {
+
+    $db = db_connect();
+
+    $purchases_command = "SELECT * FROM purchases;";
+    $purchases_result = $db->query($purchases_command);
+    $purchases_display  = '<table><tbody>
+                            <tr><th>purchaseId</th><th>userId</th><th>orderId</th><th>product_price</th><th>quantity</th><th>purchase_date</th></tr>';
+
+
+    while ($purchases_data = $purchases_result->fetch_object()) {
+        $purchases_display .= '<tr><td class="purchaseId_display">' . $purchases_data->purchaseId . '</td><td class="purchase_userId_display">' . $purchases_data->userId . '</td><td class="purchases_orderId_display">' . $purchases_data->orderId . '</td><td class="purchases_product_price_display">' . $purchases_data->product_price .'</td><td class="purchases_quantity_display">'. $purchases_data->quantity . '</td><td class="purchases_date_display">' . $purchases_data->purchase_date . '</td></tr>';
+    }
+
+    $purchases_display .= '</tbody></table>';
+
+return $purchases_display;
 }
 
 #----------------------#
@@ -349,7 +360,6 @@ function confirm_email($user)
 
 
 
-
     $mail = mail($to, $email_subject, $message, $headers);
 
     // If the order went through and the email worked, display the confirmation message and unset the cart.
@@ -364,10 +374,8 @@ function confirm_email($user)
         $thanks = "I'm sorry, something went wrong and we could not send your receipt to the email address on file.";
     }
 
+    $db->close();
 
-
-
-$db->close();
     return $thanks;
 }
 
@@ -461,13 +469,9 @@ function build_out_cart($cart = NULL ){
 
         $out_cart_data = $out_cart_results->fetch_object();
 
-
-
         $out_cart .= '<tr><td class="checkout_name">' . $out_cart_data->name . '</td><td class="checkout_quantity">' . $cart[$key]['quantity'] . '</td><td class="checkout_price">$' . number_format(($out_cart_data->price * intval($cart[$key]['quantity'])),2) . '</td></tr>';
 
-
         $total +=  $out_cart_data->price * intval($cart[$key]['quantity']);
-
 
     }
 
@@ -483,7 +487,6 @@ function build_out_cart($cart = NULL ){
 function add_to_cart($productId,$quantity){
 
     $productId = $productId;
-    //$products = $products;
     $_SESSION['out_cart'][$productId]['productId'] = $productId;
     $_SESSION['out_cart'][$productId]['quantity'] = $quantity;
     $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php";
@@ -494,17 +497,12 @@ function add_to_cart($productId,$quantity){
 // figure it out in time. So, you get the below kludge.
 if (isset($_GET['prod_name']) && $_GET['prod_name'] != 1) {
 
-    /*print_r($_GET);
-    exit;*/
     $name = $_GET['prod_name'];
     $productId = $_GET['item'];
     $quantity = $_GET['quantity'];
     $cart = $_SESSION['cart'];
 
     if ($_SESSION['sign_in'] == 1) {
-
-        /*print_r($_GET);
-        exit;*/
 
         add_to_cart($productId, $quantity   );
         $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php";
@@ -532,8 +530,6 @@ function new_user($user,$email,$pass) {
     $n_email = $email;
 
     $register_command = "INSERT INTO accounts (username, user_email, password) VALUES ('". $n_user ."', '". $n_email . "', '". $n_pass ."');";
-
-
 
     $db->query($register_command);
 
@@ -600,18 +596,16 @@ function register_display($session) {
 /*
  * @param Takes $_POST['username'] and $_POST['password']
  */
-// If the user has submitted the login form, iterate through the records in accounts.txt.
-// The nested for loops iterate first through the file, line by line, and then the first nested for loop
-// iterates through the line looking first for the username submitted. If it finds the username,
-// it then iterates through the same line again looking for the password. If both are found, the user is
-// logged in. If the password isn't found, it suggests you try again. If the user isn't found, it displays
-// the registration form.
+// Processes the incoming user credentials, validates the form, and redirects with any appropriate errors. It also
+// validates the form and process the data for the new user registration form.
 function user_cred($query=array()) {
 
     $db = db_connect();
 
 
-    $user_info = $query;
+    $user_info = $query; //The incoming POST array from the login form.
+
+
 
     // New account form validation and processing. If the new_user variable is set, test the form inputs and then process.
     if(isset($_GET['new_user']) && $_GET['new_user'] ==1){
@@ -662,12 +656,7 @@ function user_cred($query=array()) {
 
     $pw = $_POST['password'];
 
-    $reg_link = 0; // Counter to limit the display of the "register here" verbiage.
     $pass_error = 0;
-
-
-
-    // Iterates through the file testing each line for the username and password combo.
 
     $cred_command = "SELECT * FROM accounts WHERE username = '". $username . "';";
 

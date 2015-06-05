@@ -66,7 +66,8 @@ include_once($_SERVER['DOCUMENT_ROOT'] ."/sql_final/template_top.inc");
 if (isset($_GET['admin']) && $_GET['admin'] == 2) {
     echo '<div class="admin_wrapper">
             <a href="http://localhost/sql_final/index.php?admin=3">Edit Accounts</a><br />
-            <a href="httP://localhost/sql_final/index.php?admin=4">Edit Products</a>
+            <a href="http://localhost/sql_final/index.php?admin=4">Edit Products</a><br />
+            <a href="http://localhost/sql_final/index.php?admin=5">View Purchases</a>
           </div>';
 }
 
@@ -75,7 +76,8 @@ if (isset($_GET['admin']) && $_GET['admin'] == 3) {
     $accounts_display= admin_accounts();
     echo '<div class="admin_wrapper">
             <a href="http://localhost/sql_final/index.php?admin=3">Edit Accounts</a><br />
-            <a href="httP://localhost/sql_final/index.php?admin=4">Edit Products</a>
+            <a href="http://localhost/sql_final/index.php?admin=4">Edit Products</a><br />
+            <a href="http://localhost/sql_final/index.php?admin=5">View Purchases</a>
           </div>
           <div class="accounts_display">
              '. $accounts_display .'
@@ -83,18 +85,35 @@ if (isset($_GET['admin']) && $_GET['admin'] == 3) {
 
 }
 
+
 if (isset($_GET['admin']) && $_GET['admin'] ==4){
 
     $products_display = admin_products();
     echo '<div class="admin_wrapper">
             <a href="http://localhost/sql_final/index.php?admin=3">Edit Accounts</a><br />
-            <a href="httP://localhost/sql_final/index.php?admin=4">Edit Products</a>
+            <a href="http://localhost/sql_final/index.php?admin=4">Edit Products</a><br />
+            <a href="http://localhost/sql_final/index.php?admin=5">View Purchases</a>
           </div>
           <div class="accounts_display">
              '. $products_display .'
           </div>';
 
 }
+
+if (isset($_GET['admin']) && $_GET['admin'] ==5){
+
+    $purchases_display = admin_purchases_display();
+    echo '<div class="admin_wrapper">
+            <a href="http://localhost/sql_final/index.php?admin=3">Edit Accounts</a><br />
+            <a href="http://localhost/sql_final/index.php?admin=4">Edit Products</a><br />
+            <a href="http://localhost/sql_final/index.php?admin=5">View Purchases</a>
+          </div>
+          <div class="accounts_display">
+             '. $purchases_display .'
+          </div>';
+
+}
+
 // This array stores the machine names of the products. It needs to be appended if you want to add another
 // product to the store. The products.php file must also be appended to contain the new item's properties.
 $current_products = array('amethyst','quartzorb','wizard','catseye','dragon');

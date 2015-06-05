@@ -11,7 +11,7 @@
 <body>
 <div class="wrapper">
 
-
+    <h1>MAKE ADMIN FORM FOR VIEWING AN ORDER. I.E. Display the name and whatever</h1>
 
 <?php
 
