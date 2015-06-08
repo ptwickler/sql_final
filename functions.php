@@ -81,7 +81,8 @@ function admin_accounts() {
 
 }
 
-function admin_products() {
+function admin_products()
+{
     $db = db_connect();
 
 
@@ -90,13 +91,13 @@ function admin_products() {
     $products_display_results = $db->query($products_display_command);
 
     // Starts out building the table html which will be filled in, row by row, by the below while loop.
-    $products_display  = '<table><tbody>
+    $products_display = '<table><tbody>
                             <tr><th>productId</th><th>name</th><th>img</th><th>weight</th><th>price</th></tr>';
 
     //Iterates through the accounts table and concats in the data.
-    while($products_display_data = $products_display_results->fetch_object()) {
+    while ($products_display_data = $products_display_results->fetch_object()) {
 
-        $products_display .= "<tr><td>".$products_display_data->productId."</td><td>".$products_display_data->name ."</td><td>".$products_display_data->img."</td><td>".$products_display_data->weight."<td>".$products_display_data->price ."</td>";
+        $products_display .= "<tr><td>" . $products_display_data->productId . "</td><td>" . $products_display_data->name . "</td><td>" . $products_display_data->img . "</td><td>" . $products_display_data->weight . "<td>" . $products_display_data->price . "</td>";
 
     }
 
@@ -118,8 +119,6 @@ function admin_products() {
      </div>';
 
     return $products_display;
-
-
 }
 
 // Parses the incoming form data from the account update form and builds the query.
@@ -127,7 +126,6 @@ function admin_products() {
 function acct_update($post) {
 
     $db = db_connect();
-
 
     $account_info = $post;
     $userId = $account_info['userId'];
@@ -260,14 +258,60 @@ function admin_purchases_display() {
     $purchases_display  = '<table><tbody>
                             <tr><th>purchaseId</th><th>userId</th><th>orderId</th><th>product_price</th><th>quantity</th><th>purchase_date</th></tr>';
 
-
     while ($purchases_data = $purchases_result->fetch_object()) {
         $purchases_display .= '<tr><td class="purchaseId_display">' . $purchases_data->purchaseId . '</td><td class="purchase_userId_display">' . $purchases_data->userId . '</td><td class="purchases_orderId_display">' . $purchases_data->orderId . '</td><td class="purchases_product_price_display">' . $purchases_data->product_price .'</td><td class="purchases_quantity_display">'. $purchases_data->quantity . '</td><td class="purchases_date_display">' . $purchases_data->purchase_date . '</td></tr>';
     }
 
-    $purchases_display .= '</tbody></table>';
+    $purchases_display .= '</tbody></table>
 
-return $purchases_display;
+     <div class="order_display">
+       <form  class="account_edit_form" method="POST" action="functions.php?order=1">
+         <input type="text" name="orderId"><label for="orderId">orderId</label><br/>
+         <input type="submit" value="View Order">
+       </form>';
+
+     return $purchases_display;
+}
+
+function display_order($post){
+
+    $db = db_connect();
+
+    $order = $post['orderId'];
+
+    $order_command = "select purchases.*, accounts.username,products.name from purchases left outer join accounts on purchases.userId = accounts.userId left outer join products on purchases.productId = products.productId where orderId =". $order . ";";
+
+    $order_results = $db->query($order_command);
+    
+
+    $d = 0;
+
+    $order_display = "<table><tbody><tr><th></th></tr>";
+
+    while ($order_data = $order_results->fetch_object()){
+
+        if ($d == 0){
+            echo $order_data->orderId . "<br/>";
+            echo $order_data->username. "<br/>";
+            echo $order_data->name . "<br/>";
+        }
+
+        else {
+            echo $order_data->name . "<br/>";
+        }
+        $d++;
+    }
+
+
+
+
+
+
+
+
+
+
+
 }
 
 #----------------------#
@@ -702,5 +746,9 @@ if (isset($_GET['accts']) && $_GET['accts'] ==1){
 
 if (isset($_GET['products']) && $_GET['products'] == 1){
     product_update($_POST);
+}
+
+if (isset($_GET['order']) && $_GET['order'] == 1) {
+    display_order($_POST);
 }
 $firephp->log($_SESSION, 'session');
