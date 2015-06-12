@@ -11,7 +11,7 @@
 <body>
 <div class="wrapper">
 
-    <h1>MAKE ADMIN FORM FOR VIEWING AN ORDER. I.E. Display the name and whatever</h1>
+
 
 <?php
 
@@ -40,7 +40,7 @@ print '</div><!--end div.cart_display-->';
 
 
 echo '<div class="banner">
-       <!--<img class="banner" src="img/banner.jpg">-->
+       <img class="banner" src="img/banner.jpg">
       </div><!--end div.banner-->
 
 <div class="login">

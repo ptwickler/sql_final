@@ -265,7 +265,7 @@ function admin_purchases_display() {
     $purchases_display .= '</tbody></table>
 
      <div class="order_display">
-       <form  class="account_edit_form" method="POST" action="functions.php?order=1">
+       <form  class="account_edit_form" method="POST" action="index.php?order=1">
          <input type="text" name="orderId"><label for="orderId">orderId</label><br/>
          <input type="submit" value="View Order">
        </form>';
@@ -279,35 +279,38 @@ function display_order($post){
 
     $order = $post['orderId'];
 
+    $order_display_header_command = "SELECT username, purchases.orderId,purchases.purchase_date FROM accounts LEFT OUTER JOIN purchases ON accounts.userId = purchases.userId WHERE purchases.orderId =". $order . ";";
+
+    $order_display_header_data = $db->query($order_display_header_command)->fetch_object();
+
     $order_command = "select purchases.*, accounts.username,products.name from purchases left outer join accounts on purchases.userId = accounts.userId left outer join products on purchases.productId = products.productId where orderId =". $order . ";";
 
     $order_results = $db->query($order_command);
-    
 
-    $d = 0;
-
-    $order_display = "<table><tbody><tr><th></th></tr>";
+    $order_display = "<div>Username: ".$order_display_header_data->username . "</div><div>OrderId: " . $order_display_header_data->orderId."</div><div>Purchase Date: ".$order_display_header_data->purchase_date . "</div><table><tbody><tr><th>product name</th><th>product name</th><th>quantity</th><th>price</th></tr>";
 
     while ($order_data = $order_results->fetch_object()){
 
-        if ($d == 0){
-            echo $order_data->orderId . "<br/>";
-            echo $order_data->username. "<br/>";
-            echo $order_data->name . "<br/>";
-        }
 
-        else {
-            echo $order_data->name . "<br/>";
-        }
-        $d++;
+
+
+
+            $order_display .= "<tr><td>".$order_data->name . "</td><td>".$order_data->quantity . "</td><td>".$order_data->product_price . "</td></td></tr>";
+
+
+
+
+
+
+
+
     }
+    $order_display .= "</tbody></table>";
 
 
 
 
-
-
-
+     echo $order_display;
 
 
 
@@ -732,12 +735,7 @@ function user_cred($query=array()) {
 
         echo '<div>Not registered? Click <a href="index.php?register_new=1">here</a> to register.</div>';
 
-
     }
-
-
-
-
 }
 
 if (isset($_GET['accts']) && $_GET['accts'] ==1){
@@ -748,7 +746,5 @@ if (isset($_GET['products']) && $_GET['products'] == 1){
     product_update($_POST);
 }
 
-if (isset($_GET['order']) && $_GET['order'] == 1) {
-    display_order($_POST);
-}
+
 $firephp->log($_SESSION, 'session');
