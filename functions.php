@@ -255,16 +255,16 @@ function admin_purchases_display() {
 
     $purchases_command = "SELECT * FROM purchases;";
     $purchases_result = $db->query($purchases_command);
-    $purchases_display  = '<table><tbody>
+    $purchases_display  = '<div class="purchases_display"><table><tbody>
                             <tr><th>purchaseId</th><th>userId</th><th>orderId</th><th>product_price</th><th>quantity</th><th>purchase_date</th></tr>';
 
     while ($purchases_data = $purchases_result->fetch_object()) {
         $purchases_display .= '<tr><td class="purchaseId_display">' . $purchases_data->purchaseId . '</td><td class="purchase_userId_display">' . $purchases_data->userId . '</td><td class="purchases_orderId_display">' . $purchases_data->orderId . '</td><td class="purchases_product_price_display">' . $purchases_data->product_price .'</td><td class="purchases_quantity_display">'. $purchases_data->quantity . '</td><td class="purchases_date_display">' . $purchases_data->purchase_date . '</td></tr>';
     }
 
-    $purchases_display .= '</tbody></table>
+    $purchases_display .= '</tbody></table></div><!-- end div.purchases_display-->
 
-     <div class="order_display">
+     <div class="order_display_form">
        <form  class="account_edit_form" method="POST" action="index.php?order=1">
          <input type="text" name="orderId"><label for="orderId">orderId</label><br/>
          <input type="submit" value="View Order">
@@ -287,7 +287,7 @@ function display_order($post){
 
     $order_results = $db->query($order_command);
 
-    $order_display = "<div>Username: ".$order_display_header_data->username . "</div><div>OrderId: " . $order_display_header_data->orderId."</div><div>Purchase Date: ".$order_display_header_data->purchase_date . "</div><table><tbody><tr><th>product name</th><th>product name</th><th>quantity</th><th>price</th></tr>";
+    $order_display = '<div class="order_display"><div>Username: ' . $order_display_header_data->username . '</div><div>OrderId: ' . $order_display_header_data->orderId . '</div><div>Purchase Date: ' . $order_display_header_data->purchase_date . '</div><table><tbody><tr><th>product name</th><th>product name</th><th>quantity</th><th>price</th></tr>';
 
     while ($order_data = $order_results->fetch_object()){
 
@@ -305,7 +305,7 @@ function display_order($post){
 
 
     }
-    $order_display .= "</tbody></table>";
+    $order_display .= "</tbody></table></div><!-- end .order_display-->";
 
 
 
@@ -343,6 +343,8 @@ function purchase(){
 
         $order_get_price_command = "SELECT price FROM products WHERE productId=". $_SESSION['out_cart'][$key]['productId'] . ";";
 
+
+
         $order_get_price_results = $db->query($order_get_price_command);
 
 
@@ -355,13 +357,14 @@ function purchase(){
 
         $db->close();
 
+
+
     }
 }
 
 
 // Builds the confirmation email.
-function confirm_email($user)
-{
+function confirm_email($user) {
 
     $db = db_connect();
 
@@ -374,8 +377,6 @@ function confirm_email($user)
     $name = $confirm_data->username;
 
     $email = $confirm_data->user_email;
-
-
 
     $message = "<html><head></head><body><br><br><br><br><br><br><br>" . $name . ", thank you for buying this stuff.<br>Your Purchases:";
 
@@ -393,19 +394,15 @@ function confirm_email($user)
 
         $confirm_email_data = $confirm_email_results->fetch_object();
 
-
         $message .= '<table><tbody><tr><td class="checkout_name">'. $confirm_email_data->name . '</td><td class="checkout_quantity">' . $_SESSION['out_cart'][$key]['quantity'] . '</td><td class="checkout_price">$' . $confirm_email_data->price * intval($_SESSION['out_cart'][$key]['quantity']) . '.00</td></tr>';
         $total +=  $confirm_email_data->price * intval($_SESSION['out_cart'][$key]['quantity']);
     }
 
     $message .= '</tbody></table><div class="total_price"> Your Total: $' . number_format($total,2) . '</div></body></html>';
 
-
     $headers = "From: peter.twickler@gmail.com" . "\r\n";
     $headers .= 'MIME-Version: 1.0' . "\n";
     $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-
-
 
     $mail = mail($to, $email_subject, $message, $headers);
 
@@ -415,7 +412,6 @@ function confirm_email($user)
                     Your friends at Crystals, Charms, and Coffees";
 
         purchase();
-        unset($_SESSION['out_cart']);
 
     } elseif ($mail != true) {
         $thanks = "I'm sorry, something went wrong and we could not send your receipt to the email address on file.";
@@ -423,7 +419,10 @@ function confirm_email($user)
 
     $db->close();
 
+
+
     return $thanks;
+
 }
 
 

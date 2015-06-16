@@ -65,13 +65,13 @@ if (!isset($_SESSION['sign_in'])) {
 echo '</div><!--end div.sign_out-->
 </div><!--end div.login-->';
 
-if (isset($_SESSION['admin'])) {
+if (isset($_SESSION['admin']) && intval($_GET['admin']) < 2) {
  echo '<div class="admin_button">
   <a href="http://localhost/sql_final/index.php?admin=2">Go To Admin</a>
 </div>';
 }
 
-elseif(isset($_GET['admin']) && $_GET['admin'] !=1) {
+elseif(isset($_GET['admin'])) {
     echo '<a href="http://localhost/sql_final/index.php">Leave Admin Site</a>';
 }
 

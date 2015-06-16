@@ -117,3 +117,9 @@ div.accounts_display td {
 div.account_edit {
     margin: 5px 0 0 0;
 }
+
+div.order_display {
+    position: relative;
+    float: right;
+    clear: left;
+}
