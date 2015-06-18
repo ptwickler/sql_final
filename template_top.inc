@@ -29,7 +29,8 @@ if (!$firephp) {
 
 }
 
-print '<div class="cart_display">';
+echo '<div class="cart_display">';
+
 if (isset($_SESSION['sign_in']) && $_SESSION['sign_in'] == 1) {
     echo "Your Cart:<br>";
     print '<form name="checkout_button" action="index.php?checkout=1" method="POST">';
@@ -85,10 +86,6 @@ elseif(isset($_GET['admin'])) {
     echo '<a href="http://localhost/sql_final/index.php">Leave Admin Site</a>';
 }
 
-/*else {
-
-    echo "flan";
-}*/
 
 $firephp->log($_SESSION, 'session');
 $firephp->log($_GET,'get');

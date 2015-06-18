@@ -265,6 +265,7 @@ function purchase(){
 
     }
     $db->close();
+    unset($_SESSION['out_cart']);
 }
 
 // Builds the confirmation email.
@@ -449,6 +450,7 @@ function register_display($session) {
              <label for="password">Enter your password</label><br/>
              <input type="submit" value="Click to register!">
            </form>';
+        unset($_SESSION['valid']['name']); // This unsets the session validation value so that, if corrected, it won't throw an error when the user re-enters the form.
     }
 
     elseif(isset($session['valid']['email']) && $session['valid']['email'] == 'email_error' ) {
@@ -461,6 +463,7 @@ function register_display($session) {
              <label for="password">Enter your password</label><br/>
              <input type="submit" value="Click to register!">
            </form>';
+        unset($_SESSION['valid']['email']); // This unsets the session validation value so that, if corrected, it won't throw an error when the user re-enters the form.
     }
 
     elseif(isset($session['valid']['password']) && $session['valid']['password'] == 'password_error' ) {
@@ -473,6 +476,7 @@ function register_display($session) {
              <label for="password"><span class="form_error">Please enter a valid password.</span></label><br/>
              <input type="submit" value="Click to register!">
            </form>';
+        unset($_SESSION['valid']['password']); // This unsets the session validation value so that, if corrected, it won't throw an error when the user re-enters the form.
     }
 
     else {

@@ -151,7 +151,7 @@ if (isset($_GET['register_new']) && $_GET['register_new'] == 1) {
 }
 
 // This puts the site into "checkout mode".
-if ((isset($_GET['checkout']) && $_GET['checkout'] ==1)) {
+if (isset($_GET['checkout']) && $_GET['checkout'] ==1) {
     $items = $_SESSION['out_cart'];
 
     $out_table = build_out_cart($items);
@@ -175,7 +175,7 @@ if ((isset($_GET['checkout']) && $_GET['checkout'] ==1)) {
 
 
     // If the post variable "mail" is set and equals 1, send the confirmation email and display the confirmation message.
-    if (isset($_POST['mail']) && $_POST['mail'] == 1) {
+    if ((isset($_POST['mail']) && $_POST['mail'] == 1)) {
 
 
 
@@ -194,16 +194,16 @@ if ((isset($_GET['checkout']) && $_GET['checkout'] ==1)) {
     echo '</body></html>';
 }
 
-// This if statement gets activated once the user has completed a purchase and navigated
+/*// This if statement gets activated once the user has completed a purchase and navigated
 // away from the checkout cart. It unsets the cart and displays the products.
   if (isset($_GET['close']) && $_GET['close'] ==1){
-    unset($_SESSION['out_cart']);
+   // unset($_SESSION['out_cart']);
       $product_list = display();
       for ($i = 0; $i < count($product_list); $i++){
           echo $product_list[$i];
       }
 
-}
+}*/
 
 // If none of the other "special case" query strings are set, the script displays the products. That is, the site
 // is in "shopping mode".
