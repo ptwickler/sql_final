@@ -49,7 +49,7 @@ print '</div><!--end div.cart_display-->';
 
 echo '<div class="banner">
        <img class="banner" src="img/banner.jpg">
-       <h1>THERE\'S SOMETHING WRONG WITH THE CLOSE=1 or THE CONFIRM EMAIL TRIGGER </h1>
+
 
       </div><!--end div.banner-->
 
