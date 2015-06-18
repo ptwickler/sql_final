@@ -50,7 +50,7 @@ print '</div><!--end div.cart_display-->';
 
 echo '<div class="banner">
        <img class="banner" src="img/banner.jpg">
-
+<!--<h1>NOW EMAIL IS BROKEN AGAIN SENDS BUT NO ITEMS</h1>-->
 
       </div><!--end div.banner-->
 
