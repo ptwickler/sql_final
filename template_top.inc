@@ -20,6 +20,14 @@ if (!isset($_SESSION)) {
 
 }
 
+require_once('FirePHP.class.php');
+
+if (!$firephp) {
+    ob_start();
+
+    $firephp = FirePHP::getInstance(true);
+
+}
 
 print '<div class="cart_display">';
 if (isset($_SESSION['sign_in']) && $_SESSION['sign_in'] == 1) {
@@ -41,6 +49,8 @@ print '</div><!--end div.cart_display-->';
 
 echo '<div class="banner">
        <img class="banner" src="img/banner.jpg">
+       <h1>THERE\'S SOMETHING WRONG WITH THE CLOSE=1 or THE CONFIRM EMAIL TRIGGER </h1>
+
       </div><!--end div.banner-->
 
 <div class="login">
@@ -65,8 +75,8 @@ if (!isset($_SESSION['sign_in'])) {
 echo '</div><!--end div.sign_out-->
 </div><!--end div.login-->';
 
-if (isset($_SESSION['admin']) && intval($_GET['admin']) < 2) {
- echo '<div class="admin_button">
+if ((isset($_SESSION['admin']) && !isset($_GET['admin'])) ||  isset($_GET['admin']) &&  intval($_GET['admin']) < 2) {
+    echo '<div class="admin_button">
   <a href="http://localhost/sql_final/index.php?admin=2">Go To Admin</a>
 </div>';
 }
@@ -75,5 +85,10 @@ elseif(isset($_GET['admin'])) {
     echo '<a href="http://localhost/sql_final/index.php">Leave Admin Site</a>';
 }
 
+/*else {
 
+    echo "flan";
+}*/
 
+$firephp->log($_SESSION, 'session');
+$firephp->log($_GET,'get');

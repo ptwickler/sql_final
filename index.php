@@ -151,7 +151,7 @@ if (isset($_GET['register_new']) && $_GET['register_new'] == 1) {
 }
 
 // This puts the site into "checkout mode".
-if (isset($_GET['checkout']) && $_GET['checkout'] ==1) {
+if ((isset($_GET['checkout']) && $_GET['checkout'] ==1) && !isset($_GET['close'])) {
     $items = $_SESSION['out_cart'];
 
     $out_table = build_out_cart($items);
@@ -176,6 +176,8 @@ if (isset($_GET['checkout']) && $_GET['checkout'] ==1) {
 
     // If the post variable "mail" is set and equals 1, send the confirmation email and display the confirmation message.
     if (isset($_POST['mail']) && $_POST['mail'] == 1) {
+
+
         $thanks = confirm_email($_SESSION['username']);
 
 
