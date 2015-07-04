@@ -1,25 +1,21 @@
 <?php
 date_default_timezone_set ( 'America/New_York' );
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+
 if (!isset($_SESSION)) {
     session_start();
 }
-
-/*require_once('FirePHP.class.php');
-
-if (!$firephp) {
-    ob_start();
-    $firephp = FirePHP::getInstance(true);
-}*/
+#----------------------#
+# Functions  Database  #
+#----------------------#
 
 // Connects to the dB. Returns the connection object.
 function db_connect(){
-    $host = '127.0.0.1';
-    $user = 'twickler';
-    $pw = '123456';
-    $database = 'cart';
+    $host = 'sql.useractive.com';
+    $user = 'ptwickle';
+    $pw = 'reguetraI4';
+    $database = 'ptwickle';
+
     $db = new mysqli($host,$user,$pw,$database) or die("Cannot connect to MySQL.");
     return $db;
 }
@@ -27,6 +23,7 @@ function db_connect(){
 #----------------------#
 # Functions  admin     #
 #----------------------#
+
 // Displays the accounts info of the admin area as well as the form that updates them.
 function admin_accounts() {
     $db = db_connect();
@@ -58,6 +55,8 @@ function admin_accounts() {
     return $accounts_display;
 }
 
+// Pulls the product list from the dB and displays it in a table. It also displays the product
+// info update form.
 function admin_products(){
     $db = db_connect();
     $products_display_command = "SELECT * FROM products;";
@@ -138,10 +137,13 @@ function acct_update($post) {
     $account_command .= " WHERE userId=" . $userId . ";";
     $db->query($account_command);
     $db->close();
-    $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php?admin=3";
+    $url = "http://" . $_SERVER['HTTP_HOST'] . "/phpsql1/final/index.php?admin=3";
     header("Location: " . $url) or die("Didn't work");
 }
 
+
+// This function takes in the product update form from the product admin site, creates the mysql
+// query and updates the dB.
 function product_update($post) {
     $db = db_connect();
     $product_info = $post;
@@ -193,10 +195,12 @@ function product_update($post) {
     $db->query($products_command);
     $db->close();
 
-    $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php?admin=4";
+    $url = "http://" . $_SERVER['HTTP_HOST'] . "/phpsql1/final/index.php?admin=4"; // After the query runs, it redirects you to the product list admin area.
     header("Location: " . $url) or die("Didn't work");
 }
 
+
+// Pulls all purchases from the dB and displays them when user is in the "Purchases" admin area.
 function admin_purchases_display() {
     $db = db_connect();
     $purchases_command = "SELECT * FROM purchases;";
@@ -218,6 +222,8 @@ function admin_purchases_display() {
     return $purchases_display;
 }
 
+// Displays the particular order, with username, orderId, date, items, etc., not just the raw
+// purchases table.
 function display_order($post){
     $db = db_connect();
 
@@ -241,7 +247,7 @@ function display_order($post){
 #----------------------#
 # Functions  checkout  #
 #----------------------#
-// Once the user has completed checkout successfully, this function inserts the informtion into the purchases table.
+// Once the user has completed checkout successfully, this function inserts the informtion into the purchases table in the dB.
 function purchase(){
     $db = db_connect();
 
@@ -268,7 +274,7 @@ function purchase(){
     unset($_SESSION['out_cart']);
 }
 
-// Builds the confirmation email.
+// Builds the confirmation email for a purchase.
 function confirm_email($user) {
     $db = db_connect();
 
@@ -364,10 +370,8 @@ function build_display_cart($cart=NULL){
     return $display_cart;
 }
 
-/*
- * Builds the string to display the products and info in the user's checkout cart.
- */
 
+// Builds the string to display the products and info in the user's checkout cart.
 function build_out_cart($cart = NULL ){
     $db = db_connect();
 
@@ -396,7 +400,7 @@ function add_to_cart($productId,$quantity){
     $_SESSION['out_cart'][$productId]['productId'] = $productId;
     $_SESSION['out_cart'][$productId]['quantity'] = $quantity;
 
-    $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php";
+    $url = "http://" . $_SERVER['HTTP_HOST'] . "/phpsql1/final/index.php";
     header("Location: " . $url) or die("Didn't work");
 }
 
@@ -411,12 +415,12 @@ if (isset($_GET['prod_name']) && $_GET['prod_name'] != 1) {
     if ($_SESSION['sign_in'] == 1) {
         add_to_cart($productId, $quantity   );
 
-        $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php";
+        $url = "http://" . $_SERVER['HTTP_HOST'] . "/phpsql1/final/index.php";
         header("Location: " . $url) or die("Didn't work");
     }
 
     else {
-        $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php?signed=0";
+        $url = "http://" . $_SERVER['HTTP_HOST'] . "/phpsql1/final/index.php?signed=0";
         header("Location: " . $url) or die("Didn't work");
     }
 }
@@ -493,9 +497,8 @@ function register_display($session) {
 
     return $register_display;
 }
-/*
- *  Takes $_POST['username'] and $_POST['password']
- */
+
+// Takes $_POST['username'] and $_POST['password']
 // Processes the incoming user credentials, validates the form, and redirects with any appropriate errors. It also
 // validates the form and process the data for the new user registration form.
 function user_cred($query=array()) {
@@ -514,7 +517,7 @@ function user_cred($query=array()) {
         // the regular non-validation path from the form validation path.
         elseif (($name_test == '' || $name_test == null) && isset($_POST['email'])) {
             $_SESSION['valid']['name'] = 'name_error';
-            $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php?register_new=1";
+            $url = "http://" . $_SERVER['HTTP_HOST'] . "/phpsql1/final/index.php?register_new=1";
             header("Location: " . $url) or die("didn't redirect from login");
         }
 
@@ -525,7 +528,7 @@ function user_cred($query=array()) {
 
         if($user_email == null || $email_check != true){
             $_SESSION['valid']['email'] = 'email_error';
-            $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php?register_new=1";
+            $url = "http://" . $_SERVER['HTTP_HOST'] . "/phpsql1/final/index.php?register_new=1";
             header("Location: " . $url) or die("didn't redirect from login");
         }
 
@@ -533,7 +536,7 @@ function user_cred($query=array()) {
 
         if ($user_pw == null or !isset($user_pw)){
             $_SESSION['valid']['password'] = 'password_error';
-            $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php?register_new=1";
+            $url = "http://" . $_SERVER['HTTP_HOST'] . "/phpsql1/final/index.php?register_new=1";
             header("Location: " . $url) or die("didn't redirect from login");
         }
 
@@ -542,7 +545,7 @@ function user_cred($query=array()) {
         new_user($user_name,$user_email,$user_pw);
 
         ob_clean();
-        $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php";
+        $url = "http://" . $_SERVER['HTTP_HOST'] . "/phpsql1/final/index.php";
         header("Location: " . $url) or die("didn't redirect from login");
     }
 
@@ -554,6 +557,7 @@ function user_cred($query=array()) {
     $cred_results = $db->query($cred_command);
     $cred_data = $cred_results->fetch_object();
 
+// If username exists, and password exists, and they match a record in the dB, log in the user.
     if (isset($cred_data->username)  && $cred_data->username == $username) {
         if ($cred_data->password == $pw) {
             if (isset($cred_data->admin)) {
@@ -563,11 +567,11 @@ function user_cred($query=array()) {
             $_SESSION['sign_in'] = 1;
             $_SESSION['username'] = $username;
 
-            $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php";
+            $url = "http://" . $_SERVER['HTTP_HOST'] . "/phpsql1/final/index.php";
             ob_clean();
             header("Location: " . $url) or die("didn't redirect from login");
         }
-
+        // If the username exists, but they entered the wrong password...
         elseif (($cred_data->username == $username) && $cred_data->password != $pw) {
             if($pass_error == 1)
                 echo '<span class="form_error">The password you entered is not correct</span>';
@@ -575,11 +579,14 @@ function user_cred($query=array()) {
         }
     }
 
+    // If the username is not in the dB, display the register link.
     elseif ( !(isset($cred_data->username))) {
         echo '<div>Not registered? Click <a href="index.php?register_new=1">here</a> to register.</div>';
     }
 }
 
+// These if statements call the account update or product update functions when the user has
+// submitted the form.
 if (isset($_GET['accts']) && $_GET['accts'] ==1){
     acct_update($_POST);
 }
@@ -588,4 +595,3 @@ if (isset($_GET['products']) && $_GET['products'] == 1){
     product_update($_POST);
 }
 
-/*$firephp->log($_SESSION, 'session');*/

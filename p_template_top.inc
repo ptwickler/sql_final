@@ -11,26 +11,15 @@
 <body>
 <div class="wrapper">
 
-
-
 <?php
 
 if (!isset($_SESSION)) {
     session_start();
-
 }
-
-/*require_once('FirePHP.class.php');
-
-if (!$firephp) {
-    ob_start();
-
-    $firephp = FirePHP::getInstance(true);
-
-}*/
 
 echo '<div class="cart_display">';
 
+// Displays shopping cart and checkout button if user is signed in.
 if (isset($_SESSION['sign_in']) && $_SESSION['sign_in'] == 1) {
     echo "Your Cart:<br>";
     print '<form name="checkout_button" action="index.php?checkout=1" method="POST">';
@@ -76,16 +65,16 @@ if (!isset($_SESSION['sign_in'])) {
 echo '</div><!--end div.sign_out-->
 </div><!--end div.login-->';
 
+// This if and the subsequent elseif statement toggle the "Enter admin area" and "leave admin area" link depending on user's location.
 if ((isset($_SESSION['admin']) && !isset($_GET['admin'])) ||  isset($_GET['admin']) &&  intval($_GET['admin']) < 2) {
     echo '<div class="admin_button">
-  <a href="http://localhost/sql_final/index.php?admin=2">Enter Admin Area</a>
+  <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=2">Enter Admin Area</a>
 </div>';
 }
 
 elseif(isset($_GET['admin']) && $_GET['admin'] >= 2) {
-    echo '<div class="admin_button"><a href="http://localhost/sql_final/index.php">Leave Admin Area</a></div><!-- end .admin_button-->';
+    echo '<div class="admin_button"><a href="http://ptwickle.userworld.com/phpsql1/final/index.php">Leave Admin Area</a></div><!-- end .admin_button-->';
 }
 
 
-/*$firephp->log($_SESSION, 'session');
-$firephp->log($_GET,'get');*/
+

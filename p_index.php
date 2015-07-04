@@ -3,14 +3,9 @@
 ini_set('display_errors', 1);
 
 error_reporting(E_ALL);
-require_once('FirePHP.class.php');
 
-/*if (!$firephp) {
-    ob_start();
 
-    $firephp = FirePHP::getInstance(true);
 
-}*/
 /*
  * The index page controls the user's path through the site. There are three different "modes" which will cause the
  * page to display differently. First, the "normal" mode which is a user is either signed in, or not, but has not
@@ -44,7 +39,7 @@ if (isset($_GET['out']) && $_GET['out']==1){
 
     //Add in a page reload so that the session_destroy() will take effect
 
-    $url = "http://" . $_SERVER['HTTP_HOST'] . "/sql_final/index.php";
+    $url = "http://" . $_SERVER['HTTP_HOST'] . "/phpsql1/final/index.php";
 
     header("Location: ".$url) or die("Didn't work");
 }
@@ -61,13 +56,13 @@ if (!isset($_SESSION['valid'])) {
     $_SESSION['valid'] = array();
 }
 
-include_once($_SERVER['DOCUMENT_ROOT'] ."/sql_final/template_top.inc");
+include_once("template_top.inc");
 
 if (isset($_GET['admin']) && $_GET['admin'] == 2) {
     echo '<div class="admin_wrapper">
-            <a href="http://localhost/sql_final/index.php?admin=3">Edit Accounts</a><br />
-            <a href="http://localhost/sql_final/index.php?admin=4">Edit Products</a><br />
-            <a href="http://localhost/sql_final/index.php?admin=5">View Purchases</a>
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=3">Edit Accounts</a><br />
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=4">Edit Products</a><br />
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=5">View Purchases</a>
           </div>';
 }
 
@@ -75,9 +70,9 @@ if (isset($_GET['admin']) && $_GET['admin'] == 3) {
 
     $accounts_display= admin_accounts();
     echo '<div class="admin_wrapper">
-            <a href="http://localhost/sql_final/index.php?admin=3">Edit Accounts</a><br />
-            <a href="http://localhost/sql_final/index.php?admin=4">Edit Products</a><br />
-            <a href="http://localhost/sql_final/index.php?admin=5">View Purchases</a>
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=3">Edit Accounts</a><br />
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=4">Edit Products</a><br />
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=5">View Purchases</a>
           </div>
           <div class="accounts_display">
              '. $accounts_display .'
@@ -90,9 +85,9 @@ if (isset($_GET['admin']) && $_GET['admin'] ==4){
 
     $products_display = admin_products();
     echo '<div class="admin_wrapper">
-            <a href="http://localhost/sql_final/index.php?admin=3">Edit Accounts</a><br />
-            <a href="http://localhost/sql_final/index.php?admin=4">Edit Products</a><br />
-            <a href="http://localhost/sql_final/index.php?admin=5">View Purchases</a>
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=3">Edit Accounts</a><br />
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=4">Edit Products</a><br />
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=5">View Purchases</a>
           </div>
           <div class="accounts_display">
              '. $products_display .'
@@ -100,13 +95,14 @@ if (isset($_GET['admin']) && $_GET['admin'] ==4){
 
 }
 
+// If the user is in the purchases admin area, but hasn't viewed a particular order.
 if ((isset($_GET['admin']) && $_GET['admin'] ==5) && !isset($_GET['order'])){
 
     $purchases_display = admin_purchases_display();
     echo '<div class="admin_wrapper">
-            <a href="http://localhost/sql_final/index.php?admin=3">Edit Accounts</a><br />
-            <a href="http://localhost/sql_final/index.php?admin=4">Edit Products</a><br />
-            <a href="http://localhost/sql_final/index.php?admin=5">View Purchases</a>
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=3">Edit Accounts</a><br />
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=4">Edit Products</a><br />
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=5">View Purchases</a>
           </div>
           <div class="accounts_display">
              '. $purchases_display .'
@@ -114,24 +110,22 @@ if ((isset($_GET['admin']) && $_GET['admin'] ==5) && !isset($_GET['order'])){
 
 }
 
+// If the user is in the display purchases admin area and HAS viewed a particular order, display
+// the same as above, but add the order info, too.
 if (isset($_GET['order']) && $_GET['order'] == 1){
     $order_display = display_order($_POST);
     $purchases_display = admin_purchases_display();
     echo '<div class="admin_wrapper">
-            <a href="http://localhost/sql_final/index.php?admin=3">Edit Accounts</a><br />
-            <a href="http://localhost/sql_final/index.php?admin=4">Edit Products</a><br />
-            <a href="http://localhost/sql_final/index.php?admin=5">View Purchases</a>
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=3">Edit Accounts</a><br />
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=4">Edit Products</a><br />
+            <a href="http://ptwickle.userworld.com/phpsql1/final/index.php?admin=5">View Purchases</a>
           </div>
           <div class="accounts_display">
              '. $purchases_display .'
           </div>
           <div>'. $order_display . '</div>';
-
 }
 
-// This array stores the machine names of the products. It needs to be appended if you want to add another
-// product to the store. The products.php file must also be appended to contain the new item's properties.
-//$current_products = array('amethyst','quartzorb','wizard','catseye','dragon');
 
 // This if statement tests for the username and passwords in the POST variable. If they are there, it activates the
 // login.
@@ -198,9 +192,9 @@ if (isset($_GET['checkout']) && $_GET['checkout'] ==1) {
 // is in "shopping mode".
 elseif (!isset($_GET['admin']) && !isset($_GET['order'])){
     $product_list = display();
-for ($i = 0; $i < count($product_list); $i++){
-    echo $product_list[$i];
-}
+    for ($i = 0; $i < count($product_list); $i++){
+        echo $product_list[$i];
+    }
 
     echo "</div><!--end div.wrapper-->";
 
@@ -209,5 +203,5 @@ for ($i = 0; $i < count($product_list); $i++){
 }
 
 
-/*$firephp->log($_SESSION, 'session');*/
+
 
